@@ -73,13 +73,10 @@ let main argv =
     HideConsole()
     |> ignore
 
-    match argv with
-    | [| |] | [| "/c" |] ->
-        Configuration.configure()
-        |> ignore
-    | [| "/p" |] ->
+    match (argv |> Array.map (fun str -> str.ToLower())) with
+    | args when args.Length > 0 && (args.[0].StartsWith("/p") || args.[0].StartsWith("/a")) ->
         ()
-    | [| "/s" |] | _ ->
+    | [| "/s" |] ->
         let startingCursorPos = Cursor.Position
 
         let t = Thread(ThreadStart(fun _ ->
@@ -155,4 +152,7 @@ let main argv =
             Application.Run()))
         t.SetApartmentState(ApartmentState.STA)
         t.Start()
+    | _ ->
+        Configuration.configure()
+        |> ignore
     0 // return an integer exit code
